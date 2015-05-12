@@ -29,12 +29,10 @@ var words = {
 	}
 };
 
-function say(l, s, t, wait) {
-
-	var u = new SpeechSynthesisUtterance();
-	u.text = t;
+function say(l, r, t, wait) {
+	var u = new SpeechSynthesisUtterance(t);
 	u.lang = l;
-	u.rate = s;
+	u.rate = r;
 
 	return function(){
 		if (!wait)
@@ -99,7 +97,7 @@ function start(workout) {
 			p = p.then(wait(breaks - 3000));
 	})
 
-	return p.then(s(words.welldone));
+	return p.then(s(words[lang].welldone));
 }
 
 
@@ -125,12 +123,31 @@ function start(workout) {
 			// set up workout selector
 			var exerciseOpts = Object.keys(exercises['de-DE'])
 					.reduce(function(d, e){
-						var c = document.createElement('input'); c.type = 'checkbox'; c.name = 'workout'; c.value = e;
-						return d.appendChild(c), d.appendChild(document.createTextNode(e)), d;
+						var a = document.createElement('label');
+						var b = document.createElement('input');
+						var f = document.createElement('div');
+
+						a.innerText = e;
+						b.type = 'checkbox';
+						b.name = e;
+						b.value = e;
+						f.classList.add('ui');
+						f.classList.add('checkbox');
+						f.appendChild(b);
+						f.appendChild(a);
+
+						return d.appendChild(f), d;
 					}, document.createDocumentFragment());
 
-			$$('checkbox[name="workout"]').forEach(remove);
-			$('fieldset[name="workout"]').appendChild(exerciseOpts);
+			$$('[name="workout"] .ui.checkbox').forEach(remove);
+			$('[name="workout"]').appendChild(exerciseOpts);
+			$$('[name="workout"] .ui.checkbox').forEach(function(n){
+				n.onclick = function(e){
+					if (e.which !== 1) return;
+					n.classList.toggle('checked');
+					(x=n.querySelector('input')).checked = !x.checked;
+				}
+			});
 		}
 
 	};
